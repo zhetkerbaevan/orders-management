@@ -1,0 +1,29 @@
+syntax="proto3";
+option go_package = "/genproto";
+package orderspkg;
+
+service OrderService {
+    rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {}
+    rpc GetOrder(CetOrderRequest) returns (GetOrderResponse) {}
+}
+
+message Order {
+    int32 id = 1;
+    string item = 2;
+    int32 quantity = 3;
+}
+
+message CreateOrderRequest {
+    string item = 2;
+    int32 quantity = 3;
+}
+
+message CreateOrderResponse {
+    string status = 1;
+}
+
+message CetOrderRequest {}
+
+message GetOrderResponse {
+    repeated Order orders = 1;
+}

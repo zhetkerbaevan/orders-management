@@ -8,3 +8,5 @@ http:
     body: '*'
   - selector: orderspkg.OrderService.GetOrder
     get: '/v1/orders'
+  - selector: orderspkg.OrderService.DeleteOrder
+    delete: '/v1/orders/{id}'  

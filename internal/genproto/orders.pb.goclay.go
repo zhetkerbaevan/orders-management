@@ -198,6 +198,47 @@ func (d *OrderServiceDesc) RegisterHTTP(mux transport.Router) {
 		}
 	}
 
+	{
+		// Handler for DeleteOrder, binding: DELETE /v1/orders/{id}
+		var h http.HandlerFunc
+		h = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			defer r.Body.Close()
+
+			unmFunc := unmarshaler_goclay_OrderService_DeleteOrder_0(r)
+			rsp, err := _OrderService_DeleteOrder_Handler(d.svc, r.Context(), unmFunc, d.opts.UnaryInterceptor)
+
+			if err != nil {
+				if err, ok := err.(httptransport.MarshalerError); ok {
+					httpruntime.SetError(r.Context(), r, w, errors.Wrap(err.Err, "couldn't parse request"))
+					return
+				}
+				httpruntime.SetError(r.Context(), r, w, err)
+				return
+			}
+
+			if ctxErr := r.Context().Err(); ctxErr != nil && ctxErr == context.Canceled {
+				w.WriteHeader(499) // Client Closed Request
+				return
+			}
+
+			_, outbound := httpruntime.MarshalerForRequest(r)
+			w.Header().Set("Content-Type", outbound.ContentType())
+			err = outbound.Marshal(w, rsp)
+			if err != nil {
+				httpruntime.SetError(r.Context(), r, w, errors.Wrap(err, "couldn't write response"))
+				return
+			}
+		})
+
+		h = httpmw.DefaultChain(h)
+
+		if isChi {
+			chiMux.Method("DELETE", pattern_goclay_OrderService_DeleteOrder_0, h)
+		} else {
+			panic("query URI params supported only for chi.Router")
+		}
+	}
+
 }
 
 type OrderService_httpClient struct {
@@ -265,7 +306,7 @@ func (c *OrderService_httpClient) CreateOrder(ctx context.Context, in *CreateOrd
 	return &ret, errors.Wrap(err, "can't unmarshal response")
 }
 
-func (c *OrderService_httpClient) GetOrder(ctx context.Context, in *CetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
+func (c *OrderService_httpClient) GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
 	mw, err := httpclient.NewMiddlewareGRPC(opts)
 	if err != nil {
 		return nil, err
@@ -312,6 +353,53 @@ func (c *OrderService_httpClient) GetOrder(ctx context.Context, in *CetOrderRequ
 	return &ret, errors.Wrap(err, "can't unmarshal response")
 }
 
+func (c *OrderService_httpClient) DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error) {
+	mw, err := httpclient.NewMiddlewareGRPC(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	path := pattern_goclay_OrderService_DeleteOrder_0_builder(in)
+
+	buf := bytes.NewBuffer(nil)
+
+	m := httpruntime.DefaultMarshaler(nil)
+
+	req, err := http.NewRequest("DELETE", c.host+path, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't initiate HTTP request")
+	}
+	req = req.WithContext(ctx)
+
+	req.Header.Add("Accept", m.ContentType())
+
+	req, err = mw.ProcessRequest(req)
+	if err != nil {
+		return nil, err
+	}
+	rsp, err := c.c.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "error from client")
+	}
+	defer rsp.Body.Close()
+
+	rsp, err = mw.ProcessResponse(rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	if rsp.StatusCode >= 400 {
+		b, _ := ioutil.ReadAll(rsp.Body)
+		return nil, errors.Errorf("%v %v: server returned HTTP %v: '%v'", req.Method, req.URL.String(), rsp.StatusCode, string(b))
+	}
+
+	ret := DeleteOrderResponse{}
+
+	err = m.Unmarshal(rsp.Body, &ret)
+
+	return &ret, errors.Wrap(err, "can't unmarshal response")
+}
+
 // patterns for OrderService
 var (
 	pattern_goclay_OrderService_CreateOrder_0 = "/v1/orders"
@@ -330,7 +418,7 @@ var (
 
 	pattern_goclay_OrderService_GetOrder_0 = "/v1/orders"
 
-	pattern_goclay_OrderService_GetOrder_0_builder = func(in *CetOrderRequest) string {
+	pattern_goclay_OrderService_GetOrder_0_builder = func(in *GetOrderRequest) string {
 		values := url.Values{}
 
 		u := url.URL{
@@ -341,6 +429,20 @@ var (
 	}
 
 	unmarshaler_goclay_OrderService_GetOrder_0_boundParams = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+	pattern_goclay_OrderService_DeleteOrder_0 = "/v1/orders/{id}"
+
+	pattern_goclay_OrderService_DeleteOrder_0_builder = func(in *DeleteOrderRequest) string {
+		values := url.Values{}
+
+		u := url.URL{
+			Path:     fmt.Sprintf("/v1/orders/%v", in.Id),
+			RawQuery: values.Encode(),
+		}
+		return u.String()
+	}
+
+	unmarshaler_goclay_OrderService_DeleteOrder_0_boundParams = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 )
 
 // marshalers for OrderService
@@ -363,10 +465,32 @@ var (
 
 	unmarshaler_goclay_OrderService_GetOrder_0 = func(r *http.Request) func(interface{}) error {
 		return func(rif interface{}) error {
-			req := rif.(*CetOrderRequest)
+			req := rif.(*GetOrderRequest)
 
 			if err := errors.Wrap(runtime.PopulateQueryParameters(req, r.URL.Query(), unmarshaler_goclay_OrderService_GetOrder_0_boundParams), "couldn't populate query parameters"); err != nil {
 				return httpruntime.TransformUnmarshalerError(err)
+			}
+
+			return nil
+		}
+	}
+
+	unmarshaler_goclay_OrderService_DeleteOrder_0 = func(r *http.Request) func(interface{}) error {
+		return func(rif interface{}) error {
+			req := rif.(*DeleteOrderRequest)
+
+			if err := errors.Wrap(runtime.PopulateQueryParameters(req, r.URL.Query(), unmarshaler_goclay_OrderService_DeleteOrder_0_boundParams), "couldn't populate query parameters"); err != nil {
+				return httpruntime.TransformUnmarshalerError(err)
+			}
+
+			rctx := chi.RouteContext(r.Context())
+			if rctx == nil {
+				panic("Only chi router is supported for GETs atm")
+			}
+			for pos, k := range rctx.URLParams.Keys {
+				if err := errors.Wrapf(runtime.PopulateFieldFromPath(req, k, rctx.URLParams.Values[pos]), "can't read '%v' from path", k); err != nil {
+					return httptransport.NewMarshalerError(httpruntime.TransformUnmarshalerError(err))
+				}
 			}
 
 			return nil
@@ -431,6 +555,31 @@ var _swaggerDef_orders_proto = []byte(`{
           "OrderService"
         ]
       }
+    },
+    "/v1/orders/{id}": {
+      "delete": {
+        "operationId": "OrderService_DeleteOrder",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/orderspkgDeleteOrderResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "OrderService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -447,6 +596,14 @@ var _swaggerDef_orders_proto = []byte(`{
       }
     },
     "orderspkgCreateOrderResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "orderspkgDeleteOrderResponse": {
       "type": "object",
       "properties": {
         "status": {

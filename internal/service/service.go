@@ -4,23 +4,39 @@ import (
 	"context"
 
 	"github.com/zhetkerbaevan/orders-management/internal/genproto"
+	"github.com/zhetkerbaevan/orders-management/internal/models"
 )
 
-var orders = make([]*genproto.Order, 0)
-
 type OrderService struct {
-	//Store dependency injection
+	orderStore models.OrderStore //Store dependency injection
 }
 
-func NewOrderService() *OrderService {
-	return &OrderService{}
+func NewOrderService(orderStore models.OrderStore) *OrderService {
+	return &OrderService{orderStore: orderStore}
 }
 
 func (s *OrderService) CreateOrder(ctx context.Context, order *genproto.Order) error {
-	orders = append(orders, order)
+	err := s.orderStore.CreateOrder(order)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (s *OrderService) GetOrders(ctx context.Context) []*genproto.Order {
-	return orders
+	os, err := s.orderStore.GetOrders()
+	if err != nil {
+		return nil
+	}
+
+	return os
+}
+
+func (s *OrderService) DeleteOrder(ctx context.Context, id int32) error {
+	err := s.orderStore.DeleteOrder(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

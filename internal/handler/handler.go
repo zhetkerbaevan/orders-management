@@ -41,11 +41,23 @@ func (h *OrderImplementation) CreateOrder(ctx context.Context, req *genproto.Cre
 	return res, nil
 }
 
-func (h *OrderImplementation) GetOrder(ctx context.Context, req *genproto.CetOrderRequest) (*genproto.GetOrderResponse, error) {
+func (h *OrderImplementation) GetOrder(ctx context.Context, req *genproto.GetOrderRequest) (*genproto.GetOrderResponse, error) {
 	os := h.orderService.GetOrders(ctx)
 	res := &genproto.GetOrderResponse{
 		Orders: os,
 	}
 
+	return res, nil
+}
+
+func (h *OrderImplementation) DeleteOrder(ctx context.Context, req *genproto.DeleteOrderRequest) (*genproto.DeleteOrderResponse, error) {
+	err := h.orderService.DeleteOrder(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &genproto.DeleteOrderResponse{
+		Status: "OK",
+	}
 	return res, nil
 }

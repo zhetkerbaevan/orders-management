@@ -4,7 +4,8 @@ package orderspkg;
 
 service OrderService {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {}
-    rpc GetOrder(CetOrderRequest) returns (GetOrderResponse) {}
+    rpc GetOrder(GetOrderRequest) returns (GetOrderResponse) {}
+    rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse) {}
 }
 
 message Order {
@@ -22,8 +23,16 @@ message CreateOrderResponse {
     string status = 1;
 }
 
-message CetOrderRequest {}
+message GetOrderRequest {}
 
 message GetOrderResponse {
     repeated Order orders = 1;
+}
+
+message DeleteOrderRequest {
+    int32 id = 1;
+}
+
+message DeleteOrderResponse {
+    string status = 1;
 }
